@@ -1,0 +1,20 @@
+{
+  "name": "create-saint",
+  "version": "1.0.0",
+  "description": "Launch Saint CMS instantly",
+  "main": "bin/cli.js",
+  "bin": {
+    "create-saint": "./bin/cli.js"
+  },
+  "keywords": [
+    "cms",
+    "headless",
+    "go",
+    "nextjs"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.18.1"
+  }
+}

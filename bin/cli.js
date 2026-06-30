@@ -1,0 +1,97 @@
+
+
+const os = require('os');
+const fs = require('fs');
+const path = require('path');
+const { spawn } = require('child_process');
+const axios = require('axios');
+
+// 1. Detect Operating System
+const platform = os.platform();
+console.log(`🚀 Initializing Saint CMS engine for ${platform}...`);
+
+let binaryName = '';
+if (platform === 'win32') binaryName = 'saint-windows.exe';
+else if (platform === 'darwin') binaryName = 'saint-macos';
+else if (platform === 'linux') binaryName = 'saint-linux';
+else {
+  console.error('❌ Unsupported operating system.');
+  process.exit(1);
+}
+
+// 2. Setup the target download path on the user's computer
+const targetDir = path.join(process.cwd(), 'saint-cms-app');
+if (!fs.existsSync(targetDir)) {
+  fs.mkdirSync(targetDir, { recursive: true });
+}
+const binaryPath = path.join(targetDir, binaryName);
+
+
+const GITHUB_USERNAME = 'Agbara286'; 
+const REPO_NAME = 'saint-cms';
+const VERSION = 'v1.0.0'; // Your release tag
+const downloadUrl = `https://github.com/${GITHUB_USERNAME}/${REPO_NAME}/releases/download/${VERSION}/${binaryName}`;
+
+async function bootEngine() {
+   // Add this inside your bootEngine() or runBinary() function, right before spawn()
+
+const sourceOutDir = path.join(__dirname, '..', 'out');
+const targetOutDir = path.join(targetDir, 'out');
+
+if (!fs.existsSync(targetOutDir)) {
+  console.log('📂 Unpacking Saint CMS dashboard...');
+  // This recursively copies the entire 'out' folder to the user's directory
+  fs.cpSync(sourceOutDir, targetOutDir, { recursive: true });
+}
+ 
+
+  // If the binary already exists, just run it
+  if (fs.existsSync(binaryPath)) {
+    console.log('⚡ Starting Saint CMS server...');
+    runBinary();// Add this inside your bootEngine() or runBinary() function, right before spawn()
+
+
+    return;
+  }
+
+  // If not, download it from GitHub Releases
+  try {
+    console.log(`📥 Downloading Go engine from GitHub Releases...`);
+    const writer = fs.createWriteStream(binaryPath);
+    
+    const response = await axios({
+      url: downloadUrl,
+      method: 'GET',
+      responseType: 'stream'
+    });
+
+    response.data.pipe(writer);
+
+    writer.on('finish', () => {
+      console.log('✅ Download complete!');
+      if (platform !== 'win32') fs.chmodSync(binaryPath, '755'); // Grant permissions for Unix
+      console.log('⚡ Starting Saint CMS server...');
+      runBinary();
+    });
+
+    writer.on('error', (err) => {
+      console.error('❌ File write error:', err);
+    });
+
+  } catch (error) {
+    console.error('❌ Failed to download Saint CMS engine. Make sure the GitHub Release is public.');
+    console.error(error.message);
+  }
+}
+
+function runBinary() {
+  // Spawn your Go binary and pipe the output stream back to the user's terminal
+  const child = spawn(binaryPath, [], { stdio: 'inherit', shell: true });
+
+  child.on('close', (code) => {
+    console.log(`Saint CMS process exited with code ${code}`);
+    process.exit(code);
+  });
+}
+
+bootEngine();
