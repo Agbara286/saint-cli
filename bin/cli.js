@@ -29,7 +29,7 @@ const binaryPath = path.join(targetDir, binaryName);
 
 const GITHUB_USERNAME = 'Agbara286'; 
 const REPO_NAME = 'saint-cms';
-const VERSION = 'v1.0.0'; // Your release tag
+const VERSION = 'v1.0.0'; 
 const downloadUrl = `https://github.com/${GITHUB_USERNAME}/${REPO_NAME}/releases/download/${VERSION}/${binaryName}`;
 
 async function bootEngine() {
