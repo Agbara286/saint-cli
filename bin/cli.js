@@ -55,7 +55,7 @@ if (!fs.existsSync(targetOutDir)) {
 
   
   try {
-    console.log(`📥 Downloading Go engine from GitHub Releases...`);
+    console.log(`Downloading Go engine from GitHub Releases...`);
     const writer = fs.createWriteStream(binaryPath);
     
     const response = await axios({
